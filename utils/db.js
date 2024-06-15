@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 
-
 const h = process.env.DB_HOST || 'localhost';
 const p = process.env.DB_PORT || '27017';
 const dbName = process.env.connection || 'files_manager';
@@ -9,7 +8,6 @@ const url = `mongodb://${h}:${p}`;
 class DBClient {
   constructor() {
     this.db = null;
-    // create client connexion 
     this.client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
     this.client.connect()
       .then(() => {
@@ -20,9 +18,17 @@ class DBClient {
         this.db = null;
       });
   }
-  
+
   isAlive() {
     return !!this.db;
+  }
+
+  async nbUsers() {
+    return this.db.collection('users').countDocuments();
+  }
+
+  async nbFiles() {
+    return this.db.collection('files').countDocuments();
   }
 }
 const dbClient = new DBClient();
