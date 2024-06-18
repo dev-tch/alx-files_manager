@@ -16,13 +16,13 @@ class AuthController {
     const decodedCredBase64 = Buffer.from(credBase64, 'base64').toString('ascii');
     // extract email && password values
     const [email, password] = decodedCredBase64.split(':');
-    const existUser = await dbClient.findRegistredUser(email, password);
-    if (!existUser) {
+    const user = await dbClient.getRegistredUser(email, password);
+    if (!user) {
       return res.status(401).json(errorUnauth);
     }
     // generate token
     const token = uuidv4();
-    await redisClient.set(`auth_${token}`, token, 86400);
+    await redisClient.set(`auth_${token}`, user._id.toString(), 86400);
     return res.status(200).json({ token });
   }
 

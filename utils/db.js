@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { promisify } from 'util';
 import sha1 from 'sha1';
 
@@ -66,17 +66,30 @@ class DBClient {
     }
   }
 
-  async findRegistredUser(email, password) {
+  async getRegistredUser(email, password) {
     const query = {
       email,
       password: sha1(password),
     };
     try {
-      const doc = await this.findOneAsync(query);
-      return doc !== null;
+      const user = await this.findOneAsync(query);
+      return user;
     } catch (err) {
       console.log(`Error find user: ${err.message}`);
-      return false;
+      return null;
+    }
+  }
+
+  async getUserById(idUser) {
+    const query = {
+      _id: ObjectId(idUser),
+    };
+    try {
+      const user = await this.findOneAsync(query);
+      return user;
+    } catch (err) {
+      console.log(`Error find user: ${err.message}`);
+      return null;
     }
   }
 }
