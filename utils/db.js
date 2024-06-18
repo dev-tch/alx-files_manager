@@ -14,6 +14,8 @@ class DBClient {
     this.client.connect()
       .then(() => {
         this.db = this.client.db(dbName);
+        this.findOneAsync = promisify(this.db.collection('users').findOne).bind(this.db.collection('users'));
+        this.insertOneAsync = promisify(this.db.collection('users').insertOne).bind(this.db.collection('users'));
       })
       .catch((error) => {
         console.log(`Failed to connect to MongoDb: ${error.message}`);
@@ -37,9 +39,8 @@ class DBClient {
     const query = {
       email,
     };
-    const findOneAsync = promisify(this.db.collection('users').findOne).bind(this.db.collection('users'));
     try {
-      const doc = await findOneAsync(query);
+      const doc = await this.findOneAsync(query);
       return doc !== null;
     } catch (err) {
       console.log(`Error find user: ${err.message}`);
@@ -48,14 +49,12 @@ class DBClient {
   }
 
   async createUser(email, password) {
-    const hashedPwd = sha1(password);
     const user = {
       email,
-      password: hashedPwd,
+      password: sha1(password),
     };
-    const insertOneAsync = promisify(this.db.collection('users').insertOne).bind(this.db.collection('users'));
     try {
-      const result = await insertOneAsync(user);
+      const result = await this.insertOneAsync(user);
       const userCreated = {
         email,
         id: result.insertedId.toString(),
@@ -64,6 +63,20 @@ class DBClient {
     } catch (err) {
       console.log(`Èrror create user: ${err.message}`);
       return null;
+    }
+  }
+
+  async findRegistredUser(email, password) {
+    const query = {
+      email,
+      password: sha1(password),
+    };
+    try {
+      const doc = await this.findOneAsync(query);
+      return doc !== null;
+    } catch (err) {
+      console.log(`Error find user: ${err.message}`);
+      return false;
     }
   }
 }
