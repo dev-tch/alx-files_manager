@@ -8,7 +8,7 @@ class AuthController {
     const errorUnauth = {
       error: 'Unauthorized',
     };
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
       return res.status(401).json(errorUnauth);
     }
     // extract the basic 64 encoded value
