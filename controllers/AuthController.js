@@ -13,9 +13,15 @@ class AuthController {
     }
     // extract the basic 64 encoded value
     const credBase64 = authHeader.split(' ')[1];
+    if (!credBase64) {
+      return res.status(401).json(errorUnauth);
+    }
     const decodedCredBase64 = Buffer.from(credBase64, 'base64').toString('ascii');
     // extract email && password values
     const [email, password] = decodedCredBase64.split(':');
+    if (!email || !password) {
+      return res.status(401).json(errorUnauth);
+    }
     const user = await dbClient.getRegistredUser(email, password);
     if (!user) {
       return res.status(401).json(errorUnauth);
