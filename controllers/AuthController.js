@@ -34,6 +34,14 @@ class AuthController {
     if (!xTokenHeader) {
       return res.status(401).json(errorUnauth);
     }
+    const idUser = await redisClient.get(`auth_${xTokenHeader}`);
+    if (!idUser) {
+      return res.status(401).json(errorUnauth);
+    }
+    const user = await dbClient.getUserById(idUser);
+    if (!user) {
+      return res.status(401).json(errorUnauth);
+    }
     await redisClient.del(`auth_${xTokenHeader}`);
     return res.status(204).end();
   }
