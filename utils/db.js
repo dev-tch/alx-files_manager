@@ -92,6 +92,29 @@ class DBClient {
       return null;
     }
   }
+
+  async getFileById(idFile) {
+    const query = {
+      _id: ObjectId(idFile),
+    };
+    try {
+      const file = await this.findOneAsync(query);
+      return file;
+    } catch (err) {
+      console.log(`Error find file: ${err.message}`);
+      return null;
+    }
+  }
+
+  async insertFile(file) {
+    try {
+      const result = await this.insertOneAsync(file);
+      return result.ops[0];
+    } catch (err) {
+      console.log(`Error insert file: ${err.message}`);
+      return {};
+    }
+  }
 }
 const dbClient = new DBClient();
 export default dbClient;
